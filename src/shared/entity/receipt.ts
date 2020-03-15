@@ -1,4 +1,4 @@
-import { IStore, IReciept } from "../interfaces";
+import { IOutlet, IReciept } from "../interfaces";
 import { StoreRegistrationInfo } from "../types";
 import { validateEntity } from "../functions";
 

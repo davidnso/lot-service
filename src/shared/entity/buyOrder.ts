@@ -1,4 +1,4 @@
-import { IStore, IBuyOrder } from "../interfaces";
+import { IOutlet, IBuyOrder } from "../interfaces";
 import { StoreRegistrationInfo } from "../types";
 import { validateEntity } from "../functions";
 

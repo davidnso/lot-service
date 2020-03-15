@@ -1,9 +1,9 @@
-import { IStore } from "../interfaces";
+import { IOutlet } from "../interfaces";
 import { StoreRegistrationInfo } from "../types";
 import { validateEntity } from "../functions";
 
 
-export class Store implements IStore{
+export class Store implements IOutlet{
     name: string;
     bannerImg: string;
     addresses: import("../types").Address[];

@@ -17,7 +17,7 @@ export interface IUserDocument extends IUser{
 }
 
 
-export interface IStore{ 
+export interface IOutlet{ 
     name: string,
     bannerImg: string,
     addresses: Address[],
@@ -26,7 +26,7 @@ export interface IStore{
     tier: string
 }
 
-export interface IStoreDocument extends IStore{
+export interface IOutletDocument extends IOutlet{
     _id:string
 }
 
