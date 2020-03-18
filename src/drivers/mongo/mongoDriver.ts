@@ -1,7 +1,7 @@
 import { MongoDataStoreBuilder } from "./mongoDataStoreBuilder";
 import { Db, ObjectId } from "mongodb";
 import { IMongoDriver } from "../interfaces/IMongoDriver";
-import { IUser, IUserDocument } from "../../shared/interfaces";
+import { IUser, IUserDocument, ICart, CartItem, ICartDocument } from "../../shared/interfaces";
 
 require("dotenv").config();
 
@@ -21,9 +21,11 @@ export class MongoDriver implements IMongoDriver {
   db: Db | undefined;
   private static instance: MongoDriver;
   constructor() {
-    MongoDataStoreBuilder.buildDriver({} as string).then(dataStore => {
-      this.db = dataStore;
-    });
+    MongoDataStoreBuilder.buildDriver(process.env.DB_URI as string).then(
+      dataStore => {
+        this.db = dataStore;
+      }
+    );
   }
 
   async createUser(args: { user: IUser }): Promise<void> {
@@ -34,7 +36,7 @@ export class MongoDriver implements IMongoDriver {
       throw new Error(err);
     }
   }
-  
+
   async findUser(args: {
     id: string;
     identifier: string;
@@ -55,7 +57,6 @@ export class MongoDriver implements IMongoDriver {
     try {
       const objId = new ObjectId(args.id);
       const updateFields = Object.keys(args.updates);
-
       if (args.updates !== null && updateFields.length < 2) {
         const user = await this.db
           .collection(COLLECTIONS.USERS)
@@ -79,7 +80,6 @@ export class MongoDriver implements IMongoDriver {
     outletInformation: import("../../shared/interfaces").IOutlet;
   }): Promise<void> {
     try {
-
       await this.db
         ?.collection(COLLECTIONS.OUTLET)
         .insertOne(args.outletInformation);
@@ -93,17 +93,14 @@ export class MongoDriver implements IMongoDriver {
   async createBuyOrder(args: {
     orderInfo: import("../../shared/interfaces").IBuyOrder;
   }): Promise<void> {
-  try {
-      
-      await this.db
-        ?.collection(COLLECTIONS.OUTLET)
-        .insertOne(args.orderInfo);
+    try {
+      await this.db?.collection(COLLECTIONS.OUTLET).insertOne(args.orderInfo);
 
       // console.log(this.db)
     } catch (err) {
       throw new Error(err);
-    } 
-   }
+    }
+  }
 
   searchBuyOrder(args: {
     text: string;
@@ -161,33 +158,67 @@ export class MongoDriver implements IMongoDriver {
   deleteListing(args: { outletId: string }): Promise<void> {
     throw new Error("Method not implemented.");
   }
-  findCart(args: {
-    username: string;
-  }): Promise<import("../../shared/interfaces").ICartDocument> {
-    throw new Error("Method not implemented.");
-  }
-  addToCart(args: {
+  async findCart(args: {
     requester: string;
-    item: import("../../shared/interfaces").CartItem;
-  }): Promise<import("../../shared/interfaces").CartItem> {
-    throw new Error("Method not implemented.");
+  }): Promise<ICartDocument> {
+    try {
+      const cart = await this.db.collection('carts').findOne<ICartDocument>({username: args.requester})
+      return cart;
+    } catch (error) {
+      throw error;
+    }
+  }
+  async addToCart(args: {
+    requester: string;
+    item: CartItem;
+  }): Promise<void> {
+    try {
+      await this.db.collection('carts').updateOne(
+        {username: args.requester},
+        {
+          $push: {
+            items: args.item
+          }
+        }
+      )
+    } catch (error) {
+      throw error;
+    }
   }
   updateCartItem(args: {
+    requester: string;
     updates: { [x: string]: string };
   }): Promise<import("../../shared/interfaces").ICart> {
     throw new Error("Method not implemented.");
   }
-  deleteCartItem(args: {
+  async deleteCartItem(args: {
+    requester: string;
     listingId: string;
-  }): Promise<import("../../shared/interfaces").ICart> {
-    throw new Error("Method not implemented.");
+  }): Promise<ICart> {
+    try {
+      await this.db
+        .collection("carts")
+        .updateOne(
+          { username: args.requester },
+          { $pull: { items: { id: args.listingId } } }
+        );
+      const carts = await this.db
+        .collection("carts")
+        .findOne<ICart>({ username: args.requester });
+      //TODO: add step to check if the item was actually deleted from the items Array/
+      return carts;
+    } catch (error) {
+      throw error;
+    }
   }
-  clearCart({
-    args: { username: string }
-  }: {
-    args: { username: any };
-  }): Promise<void> {
-    throw new Error("Method not implemented.");
+  async clearCart(args: { requester: string }): Promise<void> {
+    try {
+      await this.db
+        .collection("carts")
+        .updateOne({ username: args.requester }, { $set: { items: [] } });
+    } catch (error) {
+      throw error;
+    }
   }
 
   static getInstance() {

@@ -86,29 +86,31 @@ export interface IMongoDriver {
     //cart related
 
     findCart(args: { 
-        username: string
+        requester: string
     }): Promise<ICartDocument>; 
 
     addToCart(args: {
         requester: string,
         item: CartItem
-    }): Promise<CartItem>;
+    }): Promise<void>;
 
     updateCartItem(
         args: { 
+            requester: string
             updates:{ [x:string]: string}
         }
     ): Promise<ICart>
 
     deleteCartItem(
         args: {
+            requester:string
             listingId: string
         }
     ): Promise< ICart> 
 
-    clearCart({
+    clearCart(
         args: {
-            username: string
+            requester: string
         }
-    }): Promise<void>
+    ): Promise<void>
 }

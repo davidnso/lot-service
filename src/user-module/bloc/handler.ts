@@ -1,24 +1,86 @@
 import { IUserComponent } from "./interfaces/IUserComponent";
 import { IUser } from "../../shared/interfaces";
-import {MongoDriver } from '../../drivers/mongo/mongoDriver';
+import { MongoDriver } from "../../drivers/mongo/mongoDriver";
+import { User } from "../../shared/entity/user";
+import { RegistrationInformation } from "../../shared/types";
+import * as jwt from "jsonwebtoken";
+const bcrypt = require("bcrypt");
+export class UserComponent implements IUserComponent {
+  static instance: UserComponent;
 
-export class UserComponent implements IUserComponent{
-    deleteUser(): Promise<void> {
-        throw new Error("Method not implemented.");
+  static getInstance() {
+    if (!this.instance) {
+      UserComponent.instance = new UserComponent();
     }
-    login(args: {
-        username: string,
-        password: string,
-   }): Promise<{ user: IUser; bearer: any; }> {
+    return UserComponent.instance;
+  }
+
+  deleteUser(): Promise<void> {
     throw new Error("Method not implemented.");
+  }
+  
+  async login(args: {
+    username: string;
+    password: string;
+  }): Promise<{ user: IUser; bearer: any }> {
+      if(args.username && args.password){
+        const user = await MongoDriver.getInstance().findUser({ id: "", identifier: args.username });
+        console.log("Login user: ", user);
+        const match = await bcrypt.compare(args.password, user.password);
+        console.log(match);
+        if (match) {
+          const bearer = jwt.sign(user, "secretKey", { expiresIn: 86400 });
+          console.log(bearer);
+          delete user.password;
+          return { user: user, bearer };
+        } else {
+          throw new Error("Login Failed");
+        }
+      }
 
-    }    
-    createUserAccount(): Promise<{ user: IUser; bearer: any; }> {
-        throw new Error("Method not implemented.");
+    throw new Error("Method not implemented.");
+  }
+
+  async createUserAccount(
+    args: RegistrationInformation
+  ): Promise<{ user: IUser; bearer: any }> {
+    let user: User;
+    const saltRounds = 10;
+    const hashedPass = await bcrypt.hash(args.password, saltRounds);
+    try {
+      args.password = hashedPass;
+    if (args) {
+      const foundUser: User = await MongoDriver.getInstance().findUser({
+        identifier: args.username,
+        id: ''
+      });
+      console.log();
+      if (!foundUser) {
+        try {
+          user = new User(args);
+          await MongoDriver.getInstance().createUser({user});
+          const registeredUser = await MongoDriver.getInstance().findUser({
+            identifier: args.username,
+            id: ""
+          });
+          delete registeredUser.password;
+          console.log(registeredUser);
+          const bearer = jwt.sign(registeredUser, "secretKey", {
+            expiresIn: 86400
+          });
+          return { user: registeredUser, bearer };
+        } catch (err) {
+          throw err;
+        }
+      } else {
+        throw new Error(`User with username ${args.username} was found`);
+      }
     }
-    updateUser(): Promise<{ user: IUser; }> {
-        throw new Error("Method not implemented.");
+    } catch (err) {
+      throw err;
     }
-
-
+  }
+  updateUser(): Promise<{ user: IUser }> {
+    throw new Error("Method not implemented.");
+  }
 }

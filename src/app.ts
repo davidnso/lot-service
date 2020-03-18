@@ -16,7 +16,7 @@ process.on('uncaughtException', (err) => {
     console.log(`Error: ${err.message}`)
   })
 
-if (false) {
+if (MongoDriver.getInstance() !==undefined) {
   // new MongoDriver(DB_URI)
   server.listen(process.env.PORT, () => {
     console.log(`LOT Server listening on port ${process.env.PORT}`);
