@@ -4,7 +4,20 @@ import { MongoDriver } from "../../drivers/mongo/mongoDriver";
 import { User } from "../../shared/entity/user";
 import { RegistrationInformation } from "../../shared/types";
 import * as jwt from "jsonwebtoken";
+// import { authorizeUser } from "../../shared/decorators/auth";
 const bcrypt = require("bcrypt");
+
+function authorizeUser(target: any, key: string, descriptor: PropertyDescriptor):any{
+  try {
+      const userInfo = jwt.verify('',process.env.SECRET_KEY)
+      console.log(userInfo);
+      if(userInfo){
+          return true;
+      }
+  } catch (error) {
+      
+  }
+}
 export class UserComponent implements IUserComponent {
   static instance: UserComponent;
 
@@ -29,7 +42,7 @@ export class UserComponent implements IUserComponent {
         const match = await bcrypt.compare(args.password, user.password);
         console.log(match);
         if (match) {
-          const bearer = jwt.sign(user, "secretKey", { expiresIn: 86400 });
+          const bearer = jwt.sign(user, process.env.SECRET_KEY, { expiresIn: 86400 });
           console.log(bearer);
           delete user.password;
           return { user: user, bearer };

@@ -1,5 +1,5 @@
 import { User } from "../../shared/entity/user";
-import { IUser, IUserDocument, IOutlet, IOutletDocument, IBuyOrder, IBuyOrderDocument, IListingDocumnet, ICart, ICartDocument, CartItem } from "../../shared/interfaces";
+import { IUser, IUserDocument, IOutlet, IOutletDocument, IBuyOrder, IBuyOrderDocument, IListingDocumnet, ICart, ICartDocument, CartItem, IReciept } from "../../shared/interfaces";
 
 export interface IMongoDriver {
 
@@ -77,10 +77,11 @@ export interface IMongoDriver {
 
     fetchOrderReceipts(args:{
         outletId: string
-    }):Promise<void>;
+    }):Promise<IReciept[]>;
 
     deleteListing(args:{
-        outletId:string
+        outletId:string,
+        listingId: string
     }):Promise<void>
 
     //cart related

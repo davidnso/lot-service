@@ -1,7 +1,16 @@
 import { MongoDataStoreBuilder } from "./mongoDataStoreBuilder";
 import { Db, ObjectId } from "mongodb";
 import { IMongoDriver } from "../interfaces/IMongoDriver";
-import { IUser, IUserDocument, ICart, CartItem, ICartDocument } from "../../shared/interfaces";
+import {
+  IUser,
+  IUserDocument,
+  ICart,
+  CartItem,
+  ICartDocument,
+  IBuyOrderDocument,
+  IListingDocumnet,
+  IReciept
+} from "../../shared/interfaces";
 
 require("dotenv").config();
 
@@ -14,7 +23,8 @@ const COLLECTIONS = {
   OUTLET: "outlets",
   CARTS: "carts",
   LISTINGS: "listings",
-  BUY_ORDERS: "posts"
+  BUY_ORDERS: "posts",
+  RECEIPTS: 'reciepts'
 };
 
 export class MongoDriver implements IMongoDriver {
@@ -117,6 +127,7 @@ export class MongoDriver implements IMongoDriver {
   }): Promise<import("../../shared/interfaces").IBuyOrderDocument[]> {
     throw new Error("Method not implemented.");
   }
+
   searchListings(args: {
     text: string;
     outlet?: string;
@@ -132,65 +143,88 @@ export class MongoDriver implements IMongoDriver {
   }): Promise<import("../../shared/interfaces").IListingDocumnet[]> {
     throw new Error("Method not implemented.");
   }
-  fetchBuyOrder(args: {
-    orderId: string;
-  }): Promise<import("../../shared/interfaces").IBuyOrderDocument> {
-    throw new Error("Method not implemented.");
-  }
-  updateBuyOrder(args: {
-    orderId: string;
-  }): Promise<import("../../shared/interfaces").IListingDocumnet> {
-    throw new Error("Method not implemented.");
-  }
-  fetchListing(args: {
-    listingId: string;
-  }): Promise<import("../../shared/interfaces").IListingDocumnet> {
-    throw new Error("Method not implemented.");
-  }
-  updateListing(args: {
-    listingId: string;
-  }): Promise<import("../../shared/interfaces").IListingDocumnet> {
-    throw new Error("Method not implemented.");
-  }
-  fetchOrderReceipts(args: { outletId: string }): Promise<void> {
-    throw new Error("Method not implemented.");
-  }
-  deleteListing(args: { outletId: string }): Promise<void> {
-    throw new Error("Method not implemented.");
-  }
-  async findCart(args: {
-    requester: string;
-  }): Promise<ICartDocument> {
+
+  fetchBuyOrder(args: { orderId: string }): Promise<IBuyOrderDocument> {
     try {
-      const cart = await this.db.collection('carts').findOne<ICartDocument>({username: args.requester})
+      return this.db
+        .collection(COLLECTIONS.BUY_ORDERS)
+        .findOne<IBuyOrderDocument>({ _id: args.orderId });
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  updateBuyOrder(args: { orderId: string }): Promise<IListingDocumnet> {
+    throw new Error("Method not implemented.");
+  }
+
+  async fetchListing(args: { listingId: string }): Promise<IListingDocumnet> {
+    try {
+      return this.db
+        .collection(COLLECTIONS.LISTINGS)
+        .findOne<IListingDocumnet>({ _id: args.listingId });
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  updateListing(args: { listingId: string }): Promise<IListingDocumnet> {
+    throw new Error("Method not implemented.");
+  }
+
+  async fetchOrderReceipts(args: { outletId: string }): Promise<IReciept[]> {
+    try {
+      return this.db
+        .collection(COLLECTIONS.RECEIPTS)
+        .find<IReciept>({ store: args.outletId }).toArray();
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  async deleteListing(args: { outletId: string; listingId: string }): Promise<void> {
+    try {
+       this.db
+        .collection(COLLECTIONS.LISTINGS)
+        .findOneAndDelete({ storeId: args.outletId, _id: args.listingId });
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  async findCart(args: { requester: string }): Promise<ICartDocument> {
+    try {
+      const cart = await this.db
+        .collection("carts")
+        .findOne<ICartDocument>({ username: args.requester });
       return cart;
     } catch (error) {
       throw error;
     }
   }
-  async addToCart(args: {
-    requester: string;
-    item: CartItem;
-  }): Promise<void> {
+
+  async addToCart(args: { requester: string; item: CartItem }): Promise<void> {
     try {
-      await this.db.collection('carts').updateOne(
-        {username: args.requester},
+      await this.db.collection("carts").updateOne(
+        { username: args.requester },
         {
           $push: {
             items: args.item
           }
         }
-      )
+      );
     } catch (error) {
       throw error;
     }
   }
+
   updateCartItem(args: {
     requester: string;
     updates: { [x: string]: string };
   }): Promise<import("../../shared/interfaces").ICart> {
     throw new Error("Method not implemented.");
   }
+
   async deleteCartItem(args: {
     requester: string;
     listingId: string;
@@ -211,6 +245,7 @@ export class MongoDriver implements IMongoDriver {
       throw error;
     }
   }
+  
   async clearCart(args: { requester: string }): Promise<void> {
     try {
       await this.db
