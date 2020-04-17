@@ -4,7 +4,9 @@ import { validateEntity } from "../functions";
 
 
 export class BuyOrder implements IBuyOrder{
-    details: { size: string; color: string; condition: string; originalPackaging: false; };
+    details: { name?: string,
+        imageUrl?: string,
+        description?: string , size: string; color: string; condition: string; originalPackaging: boolean; };
     indexId: string;
     username: string;
     phoneNumber: string;
@@ -15,16 +17,15 @@ export class BuyOrder implements IBuyOrder{
     
  
     constructor(info: IBuyOrder){
-        const isValid = validateEntity(info);
-        if(isValid){
             this.details= info.details;
             this.indexId = info.indexId;
             this.username = info.username;
             this.phoneNumber = info.email;
             this.email = info.email;
-            this.price = info.date;
-            this.status = info.status;
+            this.price = info.price;
+            this.date = Date.now().toString();
+            this.status = 'active';
 
-        }
+        
     }
 }

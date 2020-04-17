@@ -15,8 +15,7 @@ export class Listing implements IListing{
     date: string;
     name: string
     constructor(info: Partial<IListing>){
-        const isValid = validateEntity(info);
-        if(isValid){
+        // const isValid = validateEntity(info);
             this.name= info.name;
             this.description = info.description;
             this.price = info.price;
@@ -24,9 +23,9 @@ export class Listing implements IListing{
             this.details = info.details;
             this.images = info.images;
             this.storeId = info.storeId;
-            this.status = info.status;
+            this.status = 'Active';
             this.tags = info.tags;
 
-        }
+        
     }
 }

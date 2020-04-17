@@ -3,7 +3,7 @@ import { StoreRegistrationInfo } from "../types";
 import { validateEntity } from "../functions";
 
 
-export class Store implements IOutlet{
+export class Outlet implements IOutlet{
     name: string;
     bannerImg: string;
     addresses: import("../types").Address[];

@@ -7,8 +7,10 @@ export class User implements IUser{
     email: string;
     password: string;
     phoneNumber: string;
+    role: string
     addresses: Address[];
 
+    //TODO: Add profileImgUrl to user type.
     constructor(info: RegistrationInformation) {
         const isValid = validateEntity(info);
         if (isValid) {
@@ -17,6 +19,7 @@ export class User implements IUser{
           this.email = info.email;
           this.password = info.password;
           this.addresses = info.addresses;
+          this.role = 'customer'
           this.phoneNumber = info.phoneNumber;
         }
       }
