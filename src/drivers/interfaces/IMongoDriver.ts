@@ -1,5 +1,6 @@
 import { User } from "../../shared/entity/user";
-import { IUser, IUserDocument, IOutlet, IOutletDocument, IBuyOrder, IBuyOrderDocument, IListingDocumnet, ICart, ICartDocument, CartItem, IReciept } from "../../shared/interfaces";
+import { IUser, IUserDocument, IOutlet, IOutletDocument, IBuyOrder, IBuyOrderDocument, IListingDocumnet, ICart, ICartDocument, CartItem, IReciept, IListing } from "../../shared/interfaces";
+import { searchQueryParams } from "../../shared/types";
 
 export interface IMongoDriver {
 
@@ -14,8 +15,8 @@ export interface IMongoDriver {
     }): Promise<IUserDocument>
 
     updateUserInformation(args: {
-        id: string
-        updates: string
+        username: string
+        updates: {[x:string]: string}
     }): Promise<IUserDocument>
 
     deleteUserAccount(args: {
@@ -25,41 +26,31 @@ export interface IMongoDriver {
     // Outlet related
     createOutlet(args: {
         outletInformation: IOutlet
+    }): Promise<string>
+
+    createListing(args: {
+        orderInfo: IListing
     }): Promise<void>
 
-    createBuyOrder(args: {
+    createAsk(args: {
         orderInfo: IBuyOrder
-    }): Promise<void>
+    }): Promise<string>
 
     searchBuyOrder( args: { 
-        text: string;
-        username: string
-        filters?: {
-          gender?: string[];
-          kids?: string[];
-          priceRange?: { from: string; to: string };
-          color: string[];
-          size: string[];
-        };
-        limit: string;
-        sortby?: { date?: number; price?: number; name?: number };
+        query: searchQueryParams,
+        outlet: string,
+        index: string
         }): Promise<IBuyOrderDocument[]>
 
+    findAllUserBuyOrders(args: { 
+        username: string
+    })
     searchListings( args: { 
-        text: string;
-        outlet?:string
-        filters?: {
-          gender?: string[];
-          kids?: string[];
-          priceRange?: { from: string; to: string };
-          color: string[];
-          size: string[];
-        };
-        limit: string;
-        sortby?: { date?: number; price?: number; name?: number }; 
+        query: searchQueryParams,
+        outlet: string,
     }): Promise<IListingDocumnet[]>
 
-    fetchBuyOrder(args: {
+    findAsk(args: {
         orderId: string;
     }): Promise<IBuyOrderDocument>
 
@@ -87,7 +78,7 @@ export interface IMongoDriver {
     //cart related
 
     findCart(args: { 
-        requester: string
+        username: string
     }): Promise<ICartDocument>; 
 
     addToCart(args: {
@@ -98,6 +89,7 @@ export interface IMongoDriver {
     updateCartItem(
         args: { 
             requester: string
+            listingId: string
             updates:{ [x:string]: string}
         }
     ): Promise<ICart>
@@ -114,4 +106,8 @@ export interface IMongoDriver {
             requester: string
         }
     ): Promise<void>
+
+    fetchOutlet(args: {
+        outletId: string,
+    }): Promise<IOutletDocument>
 }
