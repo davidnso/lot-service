@@ -1,5 +1,7 @@
 import * as jwt from "jsonwebtoken";
 import { Request, NextFunction, Response } from "express";
+import { User } from "../entity/user";
+import { IUser } from "../interfaces";
 require("dotenv").config();
 
 export function authorizeUser({
@@ -13,13 +15,13 @@ export function authorizeUser({
 }) {
   try {
     let token: string = req.headers["authorization"]; // Express headers are auto converted to lowercase
-    if (token.startsWith("Bearer ")) {
+    if (token.startsWith("bearer ")) {
       // Remove Bearer from string
       token = token.slice(7, token.length);
     }
 
     if(token){
-        jwt.verify(token, process.env.SECRET_KEY, (err, decoded) => {
+        jwt.verify(token, process.env.SECRET_KEY, (err, decoded: IUser) => {
             if (err) {
               return res.json({
                 success: false,
