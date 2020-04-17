@@ -20,7 +20,7 @@ export interface ICartComponent{
             requester: string,
             item: CartItem
         }
-    ): Promise<CartItem>;
+    ): Promise<void>;
 
     /**
      * update the user's cart and return the updated cart. 
