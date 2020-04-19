@@ -11,6 +11,7 @@ export class OutletModuleRouteHandler {
     router.post("/outlet/:requester", createOutlet);
     router.get('/outlet/:owner', fetchAllUserOutlets)
     router.get('/outlet/:owner/outlet/:outletId', fetchUserOutlet)
+    router.get('/outlet/:listingId/listing', fetchListing)
     router.post("/outlet/:username/listing", createListing);
     
     router.put("/outlet/:requester/:listingId");
@@ -139,6 +140,10 @@ async function fetchListing(req: Request, res: Response, next: NextFunction) {
   try {
     const headers = req.headers;
     const info = req.body.info;
+    const listingId = req.params.listingId
+    
+    const listing = await OutletComponent.getInstance().fetchListing({listingId})
+    res.json(listing);
   } catch (error) {
     res.json({ error: error.message }).status(400);
   }

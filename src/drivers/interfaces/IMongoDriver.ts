@@ -1,5 +1,5 @@
 import { User } from "../../shared/entity/user";
-import { IUser, IUserDocument, IOutlet, IOutletDocument, IBuyOrder, IBuyOrderDocument, IListingDocumnet, ICart, ICartDocument, CartItem, IReciept, IListing } from "../../shared/interfaces";
+import { IUser, IUserDocument, IOutlet, IOutletDocument, IBuyOrder, IBuyOrderDocument, IListingDocumnet, ICart, ICartDocument, CartItem, IReciept, IListing, IFullListing } from "../../shared/interfaces";
 import { searchQueryParams } from "../../shared/types";
 
 export interface IMongoDriver {
@@ -48,7 +48,7 @@ export interface IMongoDriver {
     searchListings( args: { 
         query: searchQueryParams,
         outlet: string,
-    }): Promise<IListingDocumnet[]>
+    }): Promise<IFullListing[]>
 
     findAsk(args: {
         orderId: string;

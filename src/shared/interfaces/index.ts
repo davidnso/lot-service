@@ -55,12 +55,16 @@ export interface IListing{
         ]
     },
     images: string[],
+    indexId: string,
     storeId: string,
     status: string,
     tags: string,
     date: string
 }
 
+export interface IFullListing extends IListing{ 
+    indexItem: IIndexItem,
+}
 export interface IListingDocumnet extends IListing{
     _id: string
 }

@@ -9,6 +9,7 @@ export class Listing implements IListing{
     brand: string;
     details: { category: string; gender: string; subCategory: string; class: string; stock: [{ size: string; quantity: string; color: string; condition: string; }]; };
     images: string[];
+    indexId;
     storeId: string;
     status: string;
     tags: string;
@@ -22,6 +23,7 @@ export class Listing implements IListing{
             this.brand = info.brand;
             this.details = info.details;
             this.images = info.images;
+            this.indexId = info.indexId;
             this.storeId = info.storeId;
             this.status = 'Active';
             this.tags = info.tags;

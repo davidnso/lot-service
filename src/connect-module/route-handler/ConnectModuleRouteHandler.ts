@@ -12,7 +12,7 @@ export class ConnectModuleRouteHandler {
     router.post("/connect/:username/ask", createAsk);
     router.get("/connect/:username/search", fetchUserAsks);
     router.get("/connect/:username/ask/:orderId", fetchAskbyId);
-    router.get("/connect/ask", searchAsks);
+    router.get("/connect/asks", searchAsks);
     router.get("/connect/:askId/session/actorId", fetchSession)
     router.get("/connect/:askId/session", fetchAllSessions)
 

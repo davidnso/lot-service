@@ -252,9 +252,43 @@ export class ConnectComponent implements IConnectComponent {
     };
   }) {
     try {
-      const items = await MongoDriver.getInstance().searchItemIndex(args);
+      ;
+      if (args.index === null || args.index === undefined || args.index.trim().length === 0) {
+        const indices = [
+          "footwear-index",
+          "apparel-index",
+          "accessories-index",
+        ];
+        let formattedSearchResult = [];
+        console.log('here we are')
+        for (let index = 0; index < indices.length; index++) {
+          const element = indices[index];
+          const searchResult = await MongoDriver.getInstance().searchItemIndex({
+            query: args.query,
+            index: indices[index],
+          });
+          formattedSearchResult.push(...searchResult);
+        }
+        // indices.forEach(async index=>{
+        //     console.log('here searching buy orders')
+        //      const searchResult  = await MongoDriver.getInstance().searchBuyOrder({
+        //       query: args.query,
+        //       outlet: args.outlet,
+        //       index
+        //     });
+        //     // console.log(searchResult)
+        //   })
+        console.log(formattedSearchResult);
+        return formattedSearchResult;
+      }else {
+        console.log('here we are in else')
 
-      return items;
+        return await MongoDriver.getInstance().searchItemIndex({
+          query: args.query,
+          index: args.index,
+        });
+      }
+
     } catch (error) {
       throw error;
     }

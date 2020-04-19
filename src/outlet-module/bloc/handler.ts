@@ -115,6 +115,7 @@ export class OutletComponent implements IOutletComponent {
   }): Promise<IListing[]> {
     try {
       if (args.query) {
+        console.log(args.query)
         const searchResult = await MongoDriver.getInstance().searchListings({
           query: args.query,
           outlet: args.outlet

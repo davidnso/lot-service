@@ -17,6 +17,7 @@ import {
   BuyOrderEvents,
   Action,
   Session,
+  IFullListing,
 } from "../../shared/interfaces";
 import { searchQueryParams } from "../../shared/types";
 import { MongoItemIndex } from "./mongoIndexBuilder";
@@ -35,7 +36,7 @@ const COLLECTIONS = {
   LISTINGS: "listings",
   BUY_ORDERS: "posts",
   EVENT_LOGS: "logs",
-  SESSIONS: 'sessions',
+  SESSIONS: "sessions",
   RECEIPTS: "reciepts",
   APPAREL_INDEX: "apparel-index",
   ACCESSORIES_INDEX: "accessories-index",
@@ -205,7 +206,7 @@ export class MongoDriver implements IMongoDriver {
     orderInfo: import("../../shared/interfaces").IBuyOrder;
   }): Promise<string> {
     try {
-     const opResponse = await this.db
+      const opResponse = await this.db
         ?.collection(COLLECTIONS.BUY_ORDERS)
         .insertOne(args.orderInfo);
 
@@ -216,17 +217,16 @@ export class MongoDriver implements IMongoDriver {
     }
   }
 
-  async createSessionDocument(args: { 
-    outletId: string,
-    askId: string
-  }){ 
+  async createSessionDocument(args: { outletId: string; askId: string }) {
     try {
-      const opResponse = await this.db?.collection(COLLECTIONS.SESSIONS).insertOne({
-        outletId :  args.outletId,
-        askId: args.askId,
-        logs: []
-      })
-      console.log(opResponse)
+      const opResponse = await this.db
+        ?.collection(COLLECTIONS.SESSIONS)
+        .insertOne({
+          outletId: args.outletId,
+          askId: args.askId,
+          logs: [],
+        });
+      console.log(opResponse);
 
       return opResponse.insertedId as string;
     } catch (error) {
@@ -234,69 +234,63 @@ export class MongoDriver implements IMongoDriver {
     }
   }
 
-  async checkIfUserSessionExists(args: { 
-    outletId: string,
-    askId: string
-  }){ 
+  async checkIfUserSessionExists(args: { outletId: string; askId: string }) {
     try {
-     // let outletObjId  = new ObjectId(args.outletId)
-      let askObjId = new ObjectId(args.askId)
-      const opResponse = await this.db.collection(COLLECTIONS.SESSIONS).findOne(
-         { outletId: args.outletId,
-           askId: args.askId}
-      )
+      // let outletObjId  = new ObjectId(args.outletId)
+      let askObjId = new ObjectId(args.askId);
+      const opResponse = await this.db
+        .collection(COLLECTIONS.SESSIONS)
+        .findOne({ outletId: args.outletId, askId: args.askId });
 
-       if(opResponse){
-         return opResponse;
-       };
+      if (opResponse) {
+        return opResponse;
+      }
 
-       return null; 
+      return null;
     } catch (error) {
       throw error;
     }
   }
 
-  async addLogToSession(args: { 
-    action: Action,
-    sessionId: string,
-  }){ 
+  async addLogToSession(args: { action: Action; sessionId: string }) {
     try {
       await this.db.collection(COLLECTIONS.SESSIONS).updateOne(
         {
-          _id: args.sessionId
-        }, {
-          $push: { 
-            logs: args.action
-          }
+          _id: args.sessionId,
+        },
+        {
+          $push: {
+            logs: args.action,
+          },
         }
-      )
+      );
     } catch (error) {
       throw error;
     }
   }
 
-  async findAllSessions(args: { 
-    askId: string
-  }){ 
+  async findAllSessions(args: { askId: string }) {
     try {
-      const sessions = await this.db.collection(COLLECTIONS.SESSIONS).find<Session>({
-        askId: args.askId
-      }).toArray();
+      const sessions = await this.db
+        .collection(COLLECTIONS.SESSIONS)
+        .find<Session>({
+          askId: args.askId,
+        })
+        .toArray();
 
       let fullSummary = [];
 
       for (const session of sessions) {
-        const outlet = await this.db.collection(COLLECTIONS.OUTLET).findOne<IOutletDocument>({_id: new ObjectId(session.outletId)})
-        fullSummary.push( {
-          _id: outlet._id, 
+        const outlet = await this.db
+          .collection(COLLECTIONS.OUTLET)
+          .findOne<IOutletDocument>({ _id: new ObjectId(session.outletId) });
+        fullSummary.push({
+          _id: outlet._id,
           outletName: outlet.name,
           outletImg: outlet.bannerImg,
-          session
-        })
+          session,
+        });
       }
-      
-    
-      
 
       return fullSummary;
     } catch (error) {
@@ -404,40 +398,46 @@ export class MongoDriver implements IMongoDriver {
     }
   }
 
-  async findAllActiveReponsders(args: {orderId}){
+  async findAllActiveReponsders(args: { orderId }) {
     try {
-      const activeOrder: IEventLog = await this.db.collection(COLLECTIONS.EVENT_LOGS).findOne({ orderId: args.orderId}); 
-      let sellers = activeOrder.sessions.map(async sessionId=> { 
-        const session:Session = await this.db.collection(COLLECTIONS.SESSIONS).findOne({_id: sessionId})
+      const activeOrder: IEventLog = await this.db
+        .collection(COLLECTIONS.EVENT_LOGS)
+        .findOne({ orderId: args.orderId });
+      let sellers = activeOrder.sessions.map(async (sessionId) => {
+        const session: Session = await this.db
+          .collection(COLLECTIONS.SESSIONS)
+          .findOne({ _id: sessionId });
         return session.outletId;
-      })
+      });
 
-      const allSellers = await this.db.collection(COLLECTIONS.OUTLET).find({_id: { $in: sellers}}).toArray();
+      const allSellers = await this.db
+        .collection(COLLECTIONS.OUTLET)
+        .find({ _id: { $in: sellers } })
+        .toArray();
 
-      return { activeOrder, sellers: allSellers}
+      return { activeOrder, sellers: allSellers };
     } catch (error) {
       throw error;
     }
   }
 
-  async findSessionResponses(args: { 
-    outletId: string,
-    askId: string
-  }){ 
+  async findSessionResponses(args: { outletId: string; askId: string }) {
     try {
-      const session = await this.db.collection(COLLECTIONS.SESSIONS).findOne({outletId: args.outletId, askId: args.outletId}); 
-      return session; 
-
+      const session = await this.db
+        .collection(COLLECTIONS.SESSIONS)
+        .findOne({ outletId: args.outletId, askId: args.outletId });
+      return session;
     } catch (error) {
       throw error;
     }
   }
 
-  async findSessionById(id:string){ 
+  async findSessionById(id: string) {
     try {
-      const session = await this.db.collection(COLLECTIONS.SESSIONS).findOne({_id: new ObjectId(id)}); 
-      return session; 
-
+      const session = await this.db
+        .collection(COLLECTIONS.SESSIONS)
+        .findOne({ _id: new ObjectId(id) });
+      return session;
     } catch (error) {
       throw error;
     }
@@ -453,7 +453,7 @@ export class MongoDriver implements IMongoDriver {
         .find<IListingDocumnet>({ storeId: args.outletId })
         .toArray();
       console.log(listings);
-      return listings;
+      return await this.mapToFullListing(listings);
     } catch (error) {
       throw error;
     }
@@ -462,34 +462,64 @@ export class MongoDriver implements IMongoDriver {
   async searchListings(args: {
     query: searchQueryParams;
     outlet: string;
-  }): Promise<IListingDocumnet[]> {
+  }): Promise<IFullListing[]> {
     try {
-      const query: any = {
-        $text: { $search: args.query.text || "", $caseSensitive: false },
-      };
 
-      if (args.query.filters) {
-        query.$and = [];
-        const keys = Object.keys(args.query.filters);
-        keys.map((key: string) => {
-          if (key !== "priceRange") {
-            query.$and.push({
-              key: { $in: args.query.filters[key] },
-            });
-          } else {
-            //TODO: dynamically build query based on filters.
-            query.$and.push({});
-          }
-        });
+      const query: any = {};
+
+      if(args.query.text){
+        query.$text =  { $search: args.query.text || "", $caseSensitive: false };
       }
 
-      return await this.db
+      // if (args.query.filters) {
+      //   query.$and = [];
+      //   const keys = Object.keys(args.query.filters);
+      //   keys.map((key: string) => {
+      //     if (key !== "priceRange") {
+      //       query.$and.push({
+      //         key: { $in: args.query.filters[key] },
+      //       });
+      //     } else {
+      //       //TODO: dynamically build query based on filters.
+      //       query.$and.push({});
+      //     }
+      //   });
+      // }
+
+      const listings = await this.db
         .collection(COLLECTIONS.LISTINGS)
-        .find<IListingDocumnet>(query)
+        .find<any>(query) // Give this a proper type
         .toArray();
+
+      return await this.mapToFullListing(listings);
+
     } catch (error) {
       throw error;
     }
+  }
+
+  private async mapToFullListing(listings: any[]) {
+    for (let listing of listings) {
+      if (listing.indexId) {
+        let collection: string;
+        switch (listing.details.category) {
+          case "footwear":
+            collection = "footwear-index";
+            break;
+          case "apparel":
+            collection = "apparel-index";
+            break;
+          case "accessories":
+            collection = "accessories-index";
+            break;
+        }
+        const indexItem = await this.db
+          .collection(collection)
+          .findOne({ _id: new ObjectId(listing.indexId) });
+        listing.indexItem = indexItem;
+      }
+    }
+    return listings;
   }
 
   async searchItemIndex(args: {
@@ -560,9 +590,12 @@ export class MongoDriver implements IMongoDriver {
 
   async fetchListing(args: { listingId: string }): Promise<IListingDocumnet> {
     try {
-      return this.db
+      const listing = await this.db
         .collection(COLLECTIONS.LISTINGS)
-        .findOne<IListingDocumnet>({ _id: args.listingId });
+        .find<IListingDocumnet>({ _id: new ObjectId(args.listingId)}).toArray();
+
+        return await this.mapToFullListing(listing) as any;
+
     } catch (error) {
       throw error;
     }
@@ -711,26 +744,24 @@ export class MongoDriver implements IMongoDriver {
 
   async findEventsbyUser(args: { orderId: string; userId: string }) {
     try {
-      
     } catch (error) {
       throw error;
     }
   }
 
-  async findAllOrderActors(){
+  async findAllOrderActors() {
     try {
-      
     } catch (error) {
       throw error;
     }
   }
 
-  private mapUserToSummary(user: IUser){
+  private mapUserToSummary(user: IUser) {
     return {
       username: user.username,
       name: user.name,
-      email: user.email
-    }
+      email: user.email,
+    };
   }
 
   static getInstance() {
