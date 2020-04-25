@@ -138,7 +138,7 @@ export class MongoDriver implements IMongoDriver {
   }): Promise<string> {
     try {
       const result = await this.db
-        ?.collection(COLLECTIONS.OUTLET)
+        .collection(COLLECTIONS.OUTLET)
         .insertOne(args.outletInformation);
       console.log(result);
 
@@ -193,7 +193,7 @@ export class MongoDriver implements IMongoDriver {
   }): Promise<void> {
     try {
       const result = await this.db
-        ?.collection(COLLECTIONS.LISTINGS)
+        .collection(COLLECTIONS.LISTINGS)
         .insertOne(args.orderInfo);
       console.log(result);
       // console.log(this.db)
@@ -207,7 +207,7 @@ export class MongoDriver implements IMongoDriver {
   }): Promise<string> {
     try {
       const opResponse = await this.db
-        ?.collection(COLLECTIONS.BUY_ORDERS)
+        .collection(COLLECTIONS.BUY_ORDERS)
         .insertOne(args.orderInfo);
 
       return opResponse.insertedId;
@@ -220,7 +220,7 @@ export class MongoDriver implements IMongoDriver {
   async createSessionDocument(args: { outletId: string; askId: string }) {
     try {
       const opResponse = await this.db
-        ?.collection(COLLECTIONS.SESSIONS)
+        .collection(COLLECTIONS.SESSIONS)
         .insertOne({
           outletId: args.outletId,
           askId: args.askId,
