@@ -6,6 +6,7 @@ import { UserModuleRouteHandler } from '../../user-module/route-handler/UserModu
 import { OutletModuleRouteHandler } from '../../outlet-module/route-handler/OutletModuleRouteHandler';
 import { CartRouteHandler } from '../../carts-module/route-handler/CartRouteHandler';
 import { ConnectModuleRouteHandler } from '../../connect-module/route-handler/ConnectModuleRouteHandler';
+import { authenticatedAccess } from "../../shared/decorators/auth"
 
 export class ExpressDriver{
     static app = exp()

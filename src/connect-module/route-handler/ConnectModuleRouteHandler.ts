@@ -2,6 +2,7 @@ import { ConnectComponent } from "../bloc/handler";
 import { Router, NextFunction, Request, Response } from "express";
 import { IBuyOrder, Action } from "../../shared/interfaces";
 import { searchQueryParams } from "../../shared/types";
+import { authenticatedAccess } from "../../shared/decorators/auth"
 
 export class ConnectModuleRouteHandler {
   public static buildRouter() {
@@ -9,15 +10,15 @@ export class ConnectModuleRouteHandler {
 
     new ConnectComponent();
 
-    router.post("/connect/:username/ask", createAsk);
-    router.get("/connect/:username/search", fetchUserAsks);
-    router.get("/connect/:username/ask/:orderId", fetchAskbyId);
-    router.get("/connect/asks", searchAsks);
-    router.get("/connect/:askId/session/actorId", fetchSession)
-    router.get("/connect/:askId/session", fetchAllSessions)
+    router.post("/connect/:username/ask",authenticatedAccess, createAsk);
+    router.get("/connect/:username/search",authenticatedAccess, fetchUserAsks);
+    router.get("/connect/:username/ask/:orderId",authenticatedAccess, fetchAskbyId);
+    router.get("/connect/asks",authenticatedAccess,searchAsks);
+    router.get("/connect/:askId/session/actorId",authenticatedAccess, fetchSession)
+    router.get("/connect/:askId/session",authenticatedAccess, fetchAllSessions)
 
-    router.put("/connect/:actorId/ask/:askId", updateUserAsk);
-    router.post("/connect/index/search", searchIndex);
+    router.put("/connect/:actorId/ask/:askId",authenticatedAccess, updateUserAsk);
+    router.post("/connect/index/search",authenticatedAccess, searchIndex);
 
     return router;
   }
@@ -42,26 +43,26 @@ async function searchAsks(req: Request, res: Response, next: NextFunction) {
     const info = req.body.info;
 
     let query: searchQueryParams = {
-      text: req.query.text || "",
+      text: req.query.text as any || "",
       filters: {
-        gender: req.query.gender ? req.query.gender : null,
-        kids: req.query.kids ? req.query.kids : null,
+        gender: req.query.gender ? req.query.gender as any: null,
+        kids: req.query.kids ? req.query.kids as any : null,
         priceRange: {
-          from: req.query.from ? req.query.from : null,
-          to: req.query.to ? req.query.to : null,
+          from: req.query.from ? req.query.from as any : null,
+          to: req.query.to ? req.query.to as any : null,
         },
-        color: req.query.color ? req.query.color : null,
-        size: req.query.size ? req.query.size : null,
+        color: req.query.color ? req.query.color as any : null,
+        size: req.query.size ? req.query.size as any : null,
       },
-      limit: req.query.limit ? req.query.limit : null,
+      limit: req.query.limit ? req.query.limit as any : null,
       sortby: {
-        date: req.query.date ? req.query.date : null,
-        price: req.query.price ? req.query.price : null,
-        name: req.query.name ? req.query.name : null,
+        date: req.query.date ? req.query.date as any : null,
+        price: req.query.price ? req.query.price as any : null,
+        name: req.query.name ? req.query.name as any : null,
       },
     };
 
-    let outlet = req.query.outlet ? req.query.outlet : null;
+    let outlet = req.query.outlet ? req.query.outlet as string : null;
 
     const searchResult = await ConnectComponent.getInstance().searchAsks({
       query,

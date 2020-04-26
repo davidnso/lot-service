@@ -2,7 +2,8 @@ import { Router, NextFunction, Response, Request } from "express";
 import { UserComponent } from "../bloc/handler";
 import { User } from "../../shared/entity/user";
 import { RegistrationInformation } from "../../shared/types";
-import { authorizeUser } from "../../shared/decorators/auth";
+import { authenticatedAccess } from "../../shared/decorators/auth"
+// import { authorizeUser } from "../../shared/decorators/auth";
 
 
 export class UserModuleRouteHandler {
@@ -40,6 +41,7 @@ export class UserModuleRouteHandler {
         res.send(loginResponse);
     } catch (err) {
       res.sendStatus(400);
+      console.log(err);
     }
   }
 

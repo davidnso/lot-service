@@ -1,7 +1,7 @@
 import { Router, Request, NextFunction, Response } from "express";
 import { Address, searchQueryParams } from "../../shared/types";
 import { OutletComponent } from "../bloc/handler";
-import { authorizeUser } from "../../shared/decorators/auth";
+// import { authorizeUser } from "../../shared/decorators/auth";
 import { IListing, IBuyOrder } from "../../shared/interfaces";
 
 export class OutletModuleRouteHandler {
@@ -16,7 +16,7 @@ export class OutletModuleRouteHandler {
     
     router.put("/outlet/:requester/:listingId");
     router.delete("/outlet/:requester/listingId");
-    router.get("/outlet/search/listings", searchListings);
+     router.get("/outlet/search/listings", searchListings);
 
     return router;
   }
@@ -106,25 +106,24 @@ async function searchListings(req: Request, res: Response, next: NextFunction) {
     const headers = req.headers;
     const info = req.body.info;
     let query: searchQueryParams = {
-      text: req.query.text || "",
+      text: req.query.text as any || "",
       filters: {
-        gender: req.query.gender,
-        kids: req.query.kids,
+        gender: req.query.gender ? req.query.gender as any: null,
+        kids: req.query.kids ? req.query.kids as any : null,
         priceRange: {
-          from: req.query.from,
-          to: req.query.to
+          from: req.query.from ? req.query.from as any : null,
+          to: req.query.to ? req.query.to as any : null,
         },
-        color: req.query.color,
-        size: req.query.size
+        color: req.query.color ? req.query.color as any : null,
+        size: req.query.size ? req.query.size as any : null,
       },
-      limit: req.query.limit,
+      limit: req.query.limit ? req.query.limit as any : null,
       sortby: {
-        date: req.query.sortDate,
-        price: req.query.sortPrice,
-        name: req.query.sortName
-      }
+        date: req.query.date ? req.query.date as any : null,
+        price: req.query.price ? req.query.price as any : null,
+        name: req.query.name ? req.query.name as any : null,
+      },
     };
-
     const searchResult = await OutletComponent.getInstance().searchListings({
       query,
       outlet: ""
