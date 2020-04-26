@@ -3,7 +3,6 @@ import { UserComponent } from "../bloc/handler";
 import { User } from "../../shared/entity/user";
 import { RegistrationInformation } from "../../shared/types";
 import { authenticatedAccess } from "../../shared/decorators/auth"
-// import { authorizeUser } from "../../shared/decorators/auth";
 
 
 export class UserModuleRouteHandler {

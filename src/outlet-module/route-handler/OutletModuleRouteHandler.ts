@@ -1,7 +1,6 @@
 import { Router, Request, NextFunction, Response } from "express";
 import { Address, searchQueryParams } from "../../shared/types";
 import { OutletComponent } from "../bloc/handler";
-// import { authorizeUser } from "../../shared/decorators/auth";
 import { IListing, IBuyOrder } from "../../shared/interfaces";
 
 export class OutletModuleRouteHandler {
